@@ -1,0 +1,71 @@
+{
+  "search_date": "2026-03-06T19:58:18.646432",
+  "total_papers": 3,
+  "papers": [
+    {
+      "title": "Towards Provably Unbiased LLM Judges via Bias-Bounded Evaluation",
+      "authors": [
+        "Benjamin Feuer",
+        "Lucas Rosenblatt",
+        "Oussama Elachqar"
+      ],
+      "summary": "As AI models progress beyond simple chatbots into more complex workflows, we draw ever closer to the event horizon beyond which AI systems will be utilized in autonomous, self-maintaining feedback loops. Any autonomous AI system will depend on automated, verifiable rewards and feedback; in settings where ground truth is sparse or non-deterministic, one practical source of such rewards is an LLM-as-a-Judge. Although LLM judges continue to improve, the literature has yet to introduce systems capable of enforcing standards with strong guarantees, particularly when bias vectors are unknown or adversarially discovered. To remedy this issue, we propose average bias-boundedness (A-BB), an algorithmic framework which formally guarantees reductions of harm/impact as a result of any measurable bias in an LLM judge. Evaluating on Arena-Hard-Auto with four LLM judges, we achieve (tau=0.5, delta=0.01) bias-bounded guarantees while retaining 61-99% correlation with original rankings across formatting and schematic bias settings, with most judge-bias combinations exceeding 80%. The code to reproduce our findings is available at https://github.com/penfever/bias-bounded-evaluation.",
+      "published": "2026-03-05T18:52:28Z",
+      "updated": "2026-03-05T18:52:28Z",
+      "link": "https://arxiv.org/abs/2603.05485v1",
+      "pdf_link": "https://arxiv.org/pdf/2603.05485v1",
+      "categories": [
+        "cs.AI"
+      ],
+      "source": "arXiv",
+      "search_keyword": "AI industry",
+      "captured_at": "2026-03-06T19:58:17.644663"
+    },
+    {
+      "title": "Leveraging LLM Parametric Knowledge for Fact Checking without Retrieval",
+      "authors": [
+        "Artem Vazhentsev",
+        "Maria Marina",
+        "Daniil Moskovskiy",
+        "Sergey Pletenev",
+        "Mikhail Seleznyov",
+        "Mikhail Salnikov",
+        "Elena Tutubalina",
+        "Vasily Konovalov",
+        "Irina Nikishina",
+        "Alexander Panchenko",
+        "Viktor Moskvoretskii"
+      ],
+      "summary": "Trustworthiness is a core research challenge for agentic AI systems built on Large Language Models (LLMs). To enhance trust, natural language claims from diverse sources, including human-written text, web content, and model outputs, are commonly checked for factuality by retrieving external knowledge and using an LLM to verify the faithfulness of claims to the retrieved evidence. As a result, such methods are constrained by retrieval errors and external data availability, while leaving the models intrinsic fact-verification capabilities largely unused. We propose the task of fact-checking without retrieval, focusing on the verification of arbitrary natural language claims, independent of their source. To study this setting, we introduce a comprehensive evaluation framework focused on generalization, testing robustness to (i) long-tail knowledge, (ii) variation in claim sources, (iii) multilinguality, and (iv) long-form generation. Across 9 datasets, 18 methods and 3 models, our experiments indicate that logit-based approaches often underperform compared to those that leverage internal model representations. Building on this finding, we introduce INTRA, a method that exploits interactions between internal representations and achieves state-of-the-art performance with strong generalization. More broadly, our work establishes fact-checking without retrieval as a promising research direction that can complement retrieval-based frameworks, improve scalability, and enable the use of such systems as reward signals during training or as components integrated into the generation process.",
+      "published": "2026-03-05T18:42:51Z",
+      "updated": "2026-03-05T18:42:51Z",
+      "link": "https://arxiv.org/abs/2603.05471v1",
+      "pdf_link": "https://arxiv.org/pdf/2603.05471v1",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "source": "arXiv",
+      "search_keyword": "AI industry",
+      "captured_at": "2026-03-06T19:58:17.644720"
+    },
+    {
+      "title": "Kraus Constrained Sequence Learning For Quantum Trajectories from Continuous Measurement",
+      "authors": [
+        "Priyanshi Singh",
+        "Krishna Bhatia"
+      ],
+      "summary": "Real-time reconstruction of conditional quantum states from continuous measurement records is a fundamental requirement for quantum feedback control, yet standard stochastic master equation (SME) solvers require exact model specification, known system parameters, and are sensitive to parameter mismatch. While neural sequence models can fit these stochastic dynamics, the unconstrained predictors can violate physicality such as positivity or trace constraints, leading to unstable rollouts and unphysical estimates. We propose a Kraus-structured output layer that converts the hidden representation of a generic sequence backbone into a completely positive trace preserving (CPTP) quantum operation, yielding physically valid state updates by construction. We instantiate this layer across diverse backbones, RNN, GRU, LSTM, TCN, ESN and Mamba; including Neural ODE as a comparative baseline, on stochastic trajectories characterized by parameter drift. Our evaluation reveals distinct trade-offs between gating mechanisms, linear recurrence, and global attention. Across all models, Kraus-LSTM achieves the strongest results, improving state estimation quality by 7% over its unconstrained counterpart while guaranteeing physically valid predictions in non-stationary regimes.",
+      "published": "2026-03-05T18:37:05Z",
+      "updated": "2026-03-05T18:37:05Z",
+      "link": "https://arxiv.org/abs/2603.05468v1",
+      "pdf_link": "https://arxiv.org/pdf/2603.05468v1",
+      "categories": [
+        "cs.LG"
+      ],
+      "source": "arXiv",
+      "search_keyword": "AI industry",
+      "captured_at": "2026-03-06T19:58:17.644752"
+    }
+  ]
+}
