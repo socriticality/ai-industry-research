@@ -10,6 +10,7 @@ AI 与产业互联网研究系统 - 主程序
 """
 import argparse
 import sys
+import json
 from datetime import datetime
 
 # 添加项目路径
@@ -23,19 +24,29 @@ from generator.article_generator import ArticleGenerator, quick_article
 
 def cmd_fetch_papers(args):
     """抓取论文"""
-    keywords = args.keywords.split(',') if args.keywords else None
-    papers = fetch_latest_papers(
-        keywords=keywords,
-        days_back=args.days,
-        max_per_keyword=args.max
-    )
-    print(f"\n✅ 完成！共获取 {len(papers)} 篇论文")
+    try:
+        keywords = args.keywords.split(',') if args.keywords else None
+        papers = fetch_latest_papers(
+            keywords=keywords,
+            days_back=args.days,
+            max_per_keyword=args.max
+        )
+        print(f"\n✅ 完成！共获取 {len(papers)} 篇论文")
+    except KeyboardInterrupt:
+        print("\n⚠️  用户中断")
+    except Exception as e:
+        print(f"\n❌ 错误：{e}")
 
 
 def cmd_fetch_news(args):
     """抓取新闻"""
-    news = fetch_latest_news(hours_back=args.hours)
-    print(f"\n✅ 完成！共获取 {len(news)} 条新闻")
+    try:
+        news = fetch_latest_news(hours_back=args.hours)
+        print(f"\n✅ 完成！共获取 {len(news)} 条新闻")
+    except KeyboardInterrupt:
+        print("\n⚠️  用户中断")
+    except Exception as e:
+        print(f"\n❌ 错误：{e}")
 
 
 def cmd_note(args):
@@ -73,32 +84,45 @@ def cmd_note(args):
 
 def cmd_article(args):
     """生成文章"""
-    generator = ArticleGenerator()
-    manager = NoteManager()
-    
-    # 加载笔记
-    notes = manager.get_all_content()
-    
-    # 加载最新论文
     try:
-        papers = _load_latest_papers()
-    except:
-        papers = []
-    
-    # 加载最新新闻
-    try:
-        news = _load_latest_news()
-    except:
-        news = []
-    
-    filename, _ = generator.generate_article(
-        topic=args.topic,
-        notes_content=notes,
-        papers=papers if args.include_papers else None,
-        news=news if args.include_news else None,
-        style=args.style
-    )
-    print(f"\n✅ 文章已生成：{filename}")
+        generator = ArticleGenerator()
+        manager = NoteManager()
+        
+        # 加载笔记
+        notes = manager.get_all_content()
+        
+        # 加载最新论文
+        try:
+            papers = _load_latest_papers()
+        except FileNotFoundError:
+            print("⚠️  暂无论文数据，请先运行 fetch-papers")
+            papers = []
+        except json.JSONDecodeError:
+            print("⚠️  论文数据格式错误")
+            papers = []
+        
+        # 加载最新新闻
+        try:
+            news = _load_latest_news()
+        except FileNotFoundError:
+            print("⚠️  暂无新闻数据，请先运行 fetch-news")
+            news = []
+        except json.JSONDecodeError:
+            print("⚠️  新闻数据格式错误")
+            news = []
+        
+        filename, _ = generator.generate_article(
+            topic=args.topic,
+            notes_content=notes,
+            papers=papers if args.include_papers else None,
+            news=news if args.include_news else None,
+            style=args.style
+        )
+        print(f"\n✅ 文章已生成：{filename}")
+    except KeyboardInterrupt:
+        print("\n⚠️  用户中断")
+    except Exception as e:
+        print(f"\n❌ 错误：{e}")
 
 
 def cmd_quick_commentary(args):

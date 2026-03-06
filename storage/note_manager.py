@@ -2,6 +2,7 @@
 笔记系统 - 存储和管理研究思考
 """
 import json
+import fcntl
 from datetime import datetime
 from pathlib import Path
 from config.settings import NOTES_DIR
@@ -21,14 +22,22 @@ class NoteManager:
             self._save_index([])
     
     def _load_index(self):
-        """加载索引"""
+        """加载索引（带文件锁）"""
         with open(self.index_file, 'r', encoding='utf-8') as f:
-            return json.load(f)
+            fcntl.flock(f.fileno(), fcntl.LOCK_SH)
+            try:
+                return json.load(f)
+            finally:
+                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
     
     def _save_index(self, index):
-        """保存索引"""
+        """保存索引（带文件锁）"""
         with open(self.index_file, 'w', encoding='utf-8') as f:
-            json.dump(index, f, ensure_ascii=False, indent=2)
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+            try:
+                json.dump(index, f, ensure_ascii=False, indent=2)
+            finally:
+                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
     
     def create_note(self, title, content, tags=None, related_paper=None, related_news=None):
         """创建新笔记"""

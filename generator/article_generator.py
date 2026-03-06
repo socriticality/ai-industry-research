@@ -109,7 +109,7 @@ class ArticleGenerator:
         lines.append("")
         lines.append("## 结论与展望")
         lines.append("")
-        lines.append(self._generate_conclusion(topic))
+        lines.append(self._generate_conclusion(topic, notes_content))
         lines.append("")
         
         # 参考资料
@@ -144,21 +144,64 @@ class ArticleGenerator:
         
         return intro
     
-    def _generate_conclusion(self, topic):
-        """生成结论模板"""
-        conclusion = f"""通过对 {topic} 的深入研究，我们可以得出以下几点认识：
+    def _generate_conclusion(self, topic, notes_content=None):
+        """基于笔记内容生成结论"""
+        # 尝试从笔记中提取关键点
+        key_points = self._extract_key_points(notes_content) if notes_content else []
+        
+        if key_points:
+            conclusion = f"## 结论\n\n"
+            conclusion += f"基于对 **{topic}** 的研究和笔记整理，核心观点如下：\n\n"
+            
+            for i, point in enumerate(key_points[:5], 1):
+                conclusion += f"{i}. {point}\n"
+            
+            conclusion += f"\n**后续研究方向：**\n"
+            conclusion += "- 持续追踪最新论文和行业动态\n"
+            conclusion += "- 深化关键领域的研究笔记\n"
+            conclusion += "- 形成系统性的分析框架\n"
+        else:
+            # 默认模板
+            conclusion = f"""通过对 {topic} 的研究分析，本文探讨了 AI 与产业互联网发展的内在逻辑。
 
-1. **技术层面**：AI 技术正在从单点应用向系统性赋能转变
-2. **产业层面**：传统产业数字化转型进入深水区
-3. **生态层面**：平台化、生态化成为主流趋势
+**核心观点：**
+1. 技术驱动与产业需求双向促进
+2. 数字化转型进入深水区
+3. 生态化、平台化成为趋势
 
-未来值得关注的方向：
+**未来展望：**
 - AI 与垂直行业的深度融合
 - 数据要素的价值释放
-- 产业互联网平台的演进路径
+- 产业互联网平台的持续演进
 
-*（以上为框架性结论，建议根据具体研究内容补充完善）*"""
+*（建议根据具体研究内容补充完善）*"""
+        
         return conclusion
+    
+    def _extract_key_points(self, notes_content):
+        """从笔记中提取关键点"""
+        key_points = []
+        for note in notes_content:
+            if isinstance(note, dict) and 'content' in note:
+                content = note['content']
+                # 跳过元数据行
+                if '---' in content:
+                    content = content.split('---')[-1]
+                
+                for line in content.split('\n'):
+                    line = line.strip()
+                    # 跳过空行和待办事项
+                    if not line or line.startswith('- [ ]') or line.startswith('*'):
+                        continue
+                    # 提取二级标题
+                    if line.startswith('## ') and len(line) < 80:
+                        key_points.append(line.replace('## ', '').strip())
+                    # 提取列表项（排除子列表）
+                    elif line.startswith('- ') and not line.startswith('- **'):
+                        point = line.replace('- ', '').strip()
+                        if len(point) < 150 and len(point) > 10 and point not in key_points:
+                            key_points.append(point)
+        return key_points[:5]  # 最多 5 个关键点
     
     def generate_news_commentary(self, news_item, context_notes=None):
         """为单条新闻生成解读评论"""

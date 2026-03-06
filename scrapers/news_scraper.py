@@ -33,43 +33,81 @@ class NewsScraper:
     def fetch_all(self, hours_back=24):
         """抓取所有新闻源"""
         all_news = []
+        seen_urls = set()  # 去重
         cutoff_time = datetime.now() - timedelta(hours=hours_back)
         
         for source in self.sources:
             print(f"📰 抓取 {source['name']}...")
             try:
-                response = requests.get(source['url'], timeout=15)
+                response = requests.get(source['url'], timeout=20)
+                if response.status_code != 200:
+                    print(f"  ⚠️  {source['name']} 返回状态码：{response.status_code}")
+                    continue
+                    
                 feed = feedparser.parse(response.content)
+                source_count = 0
                 
                 for entry in feed.entries:
                     # 检查时间
-                    if hasattr(entry, 'published_parsed') and entry.published_parsed:
-                        pub_time = datetime(*entry.published_parsed[:6])
-                        if pub_time < cutoff_time:
-                            continue
-                    else:
-                        pub_time = datetime.now()
+                    pub_time = self._parse_entry_time(entry)
+                    if pub_time < cutoff_time:
+                        continue
                     
                     # 检查相关性
                     title = entry.title.lower()
                     summary = entry.summary.lower() if hasattr(entry, 'summary') else ''
                     
-                    if self._is_relevant(title + ' ' + summary):
-                        news_item = {
-                            'title': entry.title,
-                            'summary': entry.summary if hasattr(entry, 'summary') else '',
-                            'link': entry.links[0].href if hasattr(entry, 'links') and entry.links else '',
-                            'published': entry.published if hasattr(entry, 'published') else '',
-                            'source': source['name'],
-                            'captured_at': datetime.now().isoformat()
-                        }
-                        all_news.append(news_item)
+                    if not self._is_relevant(title + ' ' + summary):
+                        continue
+                    
+                    # 去重检查
+                    article_url = entry.links[0].href if hasattr(entry, 'links') and entry.links else ''
+                    if article_url in seen_urls:
+                        continue
+                    seen_urls.add(article_url)
+                    
+                    news_item = {
+                        'title': entry.title,
+                        'summary': entry.summary if hasattr(entry, 'summary') else '',
+                        'link': article_url,
+                        'published': entry.published if hasattr(entry, 'published') else '',
+                        'source': source['name'],
+                        'captured_at': datetime.now().isoformat()
+                    }
+                    all_news.append(news_item)
+                    source_count += 1
                 
+                if source_count > 0:
+                    print(f"  ✓ {source['name']}: {source_count} 条")
+                
+            except requests.exceptions.Timeout:
+                print(f"  ✗ {source['name']} 超时")
+            except requests.exceptions.RequestException as e:
+                print(f"  ✗ {source['name']} 网络错误：{e}")
             except Exception as e:
-                print(f"  ✗ {source['name']} 抓取失败：{e}")
+                print(f"  ✗ {source['name']} 错误：{e}")
         
-        print(f"\n✓ 共找到 {len(all_news)} 条相关新闻\n")
+        print(f"\n✓ 共找到 {len(all_news)} 条独特相关新闻\n")
         return all_news
+    
+    def _parse_entry_time(self, entry):
+        """解析新闻条目时间"""
+        if hasattr(entry, 'published_parsed') and entry.published_parsed:
+            try:
+                return datetime(*entry.published_parsed[:6])
+            except (TypeError, IndexError):
+                pass
+        if hasattr(entry, 'published'):
+            try:
+                # 尝试解析常见日期格式
+                pub_str = entry.published
+                if 'GMT' in pub_str or '+' in pub_str:
+                    # RFC 2822 格式
+                    from email.utils import parsedate_to_datetime
+                    return parsedate_to_datetime(pub_str).replace(tzinfo=None)
+            except:
+                pass
+        return datetime.now()
     
     def _is_relevant(self, text):
         """检查新闻是否与 AI/产业互联网相关"""

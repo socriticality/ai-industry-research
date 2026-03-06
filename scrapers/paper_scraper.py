@@ -13,26 +13,41 @@ from config.settings import ARXIV_API_URL, PAPERS_DIR, DEFAULT_KEYWORDS
 class ArXivScraper:
     """arXiv 论文抓取器"""
     
-    def __init__(self, max_results=10):
+    def __init__(self, max_results=50, timeout=60):
         self.max_results = max_results
         self.base_url = ARXIV_API_URL
+        self.timeout = timeout
+    
+    def _parse_date(self, date_str):
+        """解析 arXiv 日期字符串"""
+        if not date_str:
+            return None
+        try:
+            # arXiv 日期格式：2026-03-05T18:52:28Z
+            return datetime.strptime(date_str[:10], '%Y-%m-%d')
+        except (ValueError, TypeError):
+            return None
     
     def search(self, keywords, days_back=7):
         """搜索论文"""
         papers = []
+        cutoff_date = datetime.now() - timedelta(days=days_back)
         
         for keyword in keywords:
-            # 构建搜索查询
+            # 构建搜索查询 - 按提交日期排序
             query = f"all:{keyword}"
-            start_date = (datetime.now() - timedelta(days=days_back)).strftime('%Y%m%d')
-            
             url = f"{self.base_url}?search_query={query}&start=0&max_results={self.max_results}&sortBy=submittedDate&sortOrder=descending"
             
             try:
-                response = requests.get(url, timeout=30)
+                response = requests.get(url, timeout=self.timeout)
                 feed = feedparser.parse(response.content)
                 
-                for entry in feed.entries[:self.max_results]:
+                for entry in feed.entries:
+                    # 日期过滤
+                    pub_date = self._parse_date(entry.published)
+                    if pub_date and pub_date < cutoff_date:
+                        continue  # 跳过超过时间范围的论文
+                    
                     paper = {
                         'title': entry.title,
                         'authors': [author.name for author in entry.authors] if hasattr(entry, 'authors') else [],
@@ -51,8 +66,12 @@ class ArXivScraper:
                 # 避免请求过快
                 time.sleep(1)
                 
+            except requests.exceptions.Timeout:
+                print(f"⚠️  搜索 '{keyword}' 超时")
+            except requests.exceptions.RequestException as e:
+                print(f"⚠️  搜索 '{keyword}' 失败：{e}")
             except Exception as e:
-                print(f"Error searching '{keyword}': {e}")
+                print(f"⚠️  搜索 '{keyword}' 错误：{e}")
         
         return papers
     
