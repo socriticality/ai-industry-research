@@ -1,0 +1,11 @@
+# Cron 定时同步配置
+# 使用方法：crontab -e 然后添加下面的行
+
+# 每天晚上 2 点自动同步代码到 GitHub
+0 2 * * * cd /home/ecs-user/.openclaw/workspace/ai-industry-research && ./sync-github.sh "Nightly auto-sync" >> /tmp/github-sync.log 2>&1
+
+# 或者每小时同步一次（如果需要更频繁）
+# 0 * * * * cd /home/ecs-user/.openclaw/workspace/ai-industry-research && ./sync-github.sh "Hourly auto-sync" >> /tmp/github-sync.log 2>&1
+
+# 查看同步日志
+# tail -f /tmp/github-sync.log

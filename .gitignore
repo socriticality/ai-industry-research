@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# 敏感信息
+config/github.env
+.env
+*.env
+
+# 数据文件（可能包含大量内容）
+storage/papers/*.json
+storage/news/*.json
+storage/articles/*.md
+storage/notes/*.md
+!storage/notes/README.md
+
+# 日志
+*.log
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
