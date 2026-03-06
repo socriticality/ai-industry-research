@@ -8,17 +8,17 @@ __pycache__/
 dist/
 build/
 
-# 敏感信息
+# 敏感信息（重要！）
 config/github.env
-.env
 *.env
+.env
+.env.local
 
-# 数据文件（可能包含大量内容）
-storage/papers/*.json
-storage/news/*.json
-storage/articles/*.md
-storage/notes/*.md
-!storage/notes/README.md
+# 数据文件（可选，避免仓库过大）
+# storage/papers/*.json
+# storage/news/*.json
+# storage/articles/*.md
+# storage/notes/*.md
 
 # 日志
 *.log
